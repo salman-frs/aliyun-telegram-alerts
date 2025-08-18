@@ -34,9 +34,9 @@ COPY --chown=www-data:www-data . /var/www
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Create necessary directories
-RUN mkdir -p /var/www/logs /var/www/storage/rate_limits
+RUN mkdir -p /var/www/logs /var/www/storage/rate_limits /var/log/supervisor
 RUN chown -R www-data:www-data /var/www/logs /var/www/storage
-RUN chmod -R 755 /var/www/logs /var/www/storage
+RUN chmod -R 755 /var/www/logs /var/www/storage /var/log/supervisor
 
 # Copy nginx configuration
 COPY deploy/docker/nginx.conf /etc/nginx/nginx.conf
