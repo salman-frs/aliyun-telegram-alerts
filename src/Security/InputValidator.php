@@ -330,7 +330,8 @@ class InputValidator
      */
     private function isValidEventName(string $eventName): bool
     {
-        return preg_match('/^[a-zA-Z0-9\s\-_\.]{1,100}$/', $eventName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, and colons
+        return preg_match('/^[a-zA-Z0-9\s\-_\.:]{1,100}$/', $eventName) === 1;
     }
     
     /**
