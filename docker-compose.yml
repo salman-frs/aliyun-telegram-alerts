@@ -11,7 +11,7 @@ services:
     environment:
       - TG_API_KEY=${TG_API_KEY}
       - TG_CHAT_ID=${TG_CHAT_ID}
-      - SIGNATURE=${SIGNATURE}
+      - SIGNATURE=${SIGNATURE:-}
       - PREFIX=${PREFIX:-[CM]}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_MAX_FILES=${LOG_MAX_FILES:-30}
