@@ -7,17 +7,17 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 
-A secure webhook handler for Alibaba Cloud Monitor that sends notifications to Telegram. This application receives alarm notifications from Alibaba Cloud Monitor and forwards them to a Telegram chat.
+A PHP webhook handler that processes HTTP POST requests from Alibaba Cloud Monitor and sends formatted messages to Telegram via Bot API. Supports both JSON and form-encoded payloads with input validation, rate limiting, and structured logging.
 
 ## Features
 
-- **Security**: Input validation, rate limiting, and signature verification
-- **Clean Architecture**: PSR-4 autoloading, dependency injection, and SOLID principles
-- **Comprehensive Logging**: Structured logging with rotation and different log levels
-- **Rate Limiting**: Protection against abuse and DoS attacks
-- **Environment Configuration**: Secure configuration management
-- **Telegram Integration**: Reliable message delivery with error handling
-- **Production Ready**: Error handling, monitoring, and deployment configurations
+- **Input Validation**: Regex-based validation for metric names, alert names, instance names, event names, and product names with Unicode support
+- **PSR-4 Autoloading**: Composer-based class autoloading with namespace structure under `src/` directory
+- **Monolog Integration**: File-based logging with configurable levels (debug, info, warning, error, critical) and automatic rotation
+- **Rate Limiting**: In-memory request tracking with configurable limits per IP address and time window
+- **Environment Variables**: `.env` file configuration for API keys, chat IDs, signatures, and application settings
+- **Telegram Bot API**: HTTP-based message sending with error handling and retry logic
+- **Webhook Processing**: Support for both JSON and form-encoded payloads from Alibaba Cloud Monitor
 
 ## Requirements
 
@@ -169,56 +169,57 @@ For backward compatibility, the following endpoints are still available:
 - `/threshold_alarm.php` - Handles threshold-based alarms
 - `/event_alarm.php` - Handles event-based alarms
 
-## Security Features
+## Security Implementation
 
 ### Input Validation
 
-- Validates all incoming webhook data
-- Sanitizes user input to prevent injection attacks
-- Checks required fields and data types
+- **Regex Patterns**: Uses Unicode-aware regex patterns (`\p{L}\p{N}`) for validating names and identifiers
+- **Field Validation**: Validates `alertName`, `metricName`, `instanceName`, `eventName`, and `productName` with length limits (50-100 characters)
+- **Data Type Checking**: Enforces string types and required field presence using PHP's `isset()` and `is_string()` functions
+- **HTTP Method Restriction**: Only accepts POST requests, returns 405 for other methods
 
 ### Rate Limiting
 
-- Configurable request limits per time window
-- IP-based rate limiting
-- Automatic cleanup of old rate limit data
+- **Implementation**: File-based storage in `/tmp/rate_limit_<ip>.json` with timestamp tracking
+- **Configuration**: `RATE_LIMIT_MAX_REQUESTS` and `RATE_LIMIT_TIME_WINDOW` environment variables
+- **Cleanup**: Automatic removal of expired rate limit files older than the time window
+- **Response**: Returns HTTP 429 when limits exceeded
 
 ### Signature Verification
 
-- Webhook signature validation
-- Prevents unauthorized access
-- Configurable signature parameter
+- **Parameter**: Validates `SIGNATURE` environment variable against request parameter
+- **Method**: Simple string comparison for webhook authentication
+- **Fallback**: Continues processing if signature parameter is missing (configurable)
 
 ### Error Handling
 
-- Comprehensive exception handling
-- Structured error responses
-- Security-conscious error messages
+- **HTTP Status Codes**: Returns appropriate codes (400, 405, 429, 500) with JSON error responses
+- **Exception Catching**: Try-catch blocks around webhook processing with detailed logging
+- **Error Messages**: Generic messages in responses, detailed information only in logs
 
-## Monitoring and Logging
+## Logging Implementation
 
-### Log Levels
+### Log Configuration
 
-- `debug`: Detailed debugging information
-- `info`: General information messages
-- `warning`: Warning messages
-- `error`: Error messages
-- `critical`: Critical error messages
+- **Library**: Monolog with `StreamHandler` for file-based logging
+- **File Location**: `logs/app.log` and `logs/error.log` (separate error stream)
+- **Format**: `[Y-m-d H:i:s] channel.LEVEL: message context extra`
+- **Environment Variables**: `LOG_LEVEL`, `LOG_MAX_FILES`, `LOG_MAX_SIZE`
 
 ### Log Rotation
 
-- Automatic log file rotation
-- Configurable maximum file size
-- Configurable retention period
+- **Implementation**: `RotatingFileHandler` with daily rotation
+- **File Size Limit**: Configurable via `LOG_MAX_SIZE` (default: 10MB)
+- **Retention**: Configurable via `LOG_MAX_FILES` (default: 30 days)
+- **Naming**: Files named with date suffix (e.g., `app-2024-01-15.log`)
 
-### Monitoring
+### Logged Information
 
-The application provides several monitoring capabilities:
-
-- Request/response logging
-- Error tracking
-- Rate limit monitoring
-- Performance metrics
+- **Webhook Requests**: Full payload data, IP address, user agent, timestamp
+- **Validation Errors**: Specific field validation failures with input values
+- **Rate Limiting**: IP addresses, request counts, time windows
+- **Telegram API**: Request/response data, HTTP status codes, error messages
+- **System Errors**: Exception stack traces, file paths, line numbers
 
 ## Development
 
@@ -297,16 +298,16 @@ For support and questions:
 
 ### Version 2.0.0
 
-- Rewritten with enhanced security features
-- Comprehensive input validation
-- Rate limiting implementation
-- Structured logging system
-- Improved error handling
-- Production deployment configurations
-- PSR-4 autoloading and clean architecture
+- **Input Validation**: Added Unicode-aware regex validation for all webhook fields
+- **Rate Limiting**: Implemented file-based IP tracking with configurable limits
+- **Logging**: Integrated Monolog with rotating file handlers and structured output
+- **Error Handling**: Added HTTP status code responses and exception catching
+- **Architecture**: Implemented PSR-4 autoloading with `src/` namespace structure
+- **Security**: Added signature verification and HTTP method restrictions
+- **Configuration**: Environment-based configuration with `.env` file support
 
 ### Version 1.0.0
 
-- Initial release
-- Telegram notification functionality
-- Basic webhook handling
+- **Core Functionality**: Basic webhook endpoint for Alibaba Cloud Monitor
+- **Telegram Integration**: Bot API integration for message sending
+- **Webhook Processing**: Support for threshold and event alarm formats
