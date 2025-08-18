@@ -31,7 +31,7 @@ function handleDirectRequest(): void {
         $config->load();
         
         $logger = new FileLogger(
-            __DIR__ . '/logs',
+            $config->getLogDir(),
             $config->getLogLevel()
         );
         
@@ -104,7 +104,7 @@ function handler($request, $context): Response {
         $config->load();
         
         $logger = new FileLogger(
-            '/tmp/cloudmonitor_logs',
+            $config->getLogDir(),
             $config->getLogLevel()
         );
         

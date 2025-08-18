@@ -106,6 +106,54 @@ class InputValidator
     }
     
     /**
+     * Validate Alibaba Cloud webhook data
+     * 
+     * @param array $data Input data to validate
+     * @return array Validation result with 'valid' boolean and 'errors' array
+     */
+    public function validateAlibabaCloudWebhook(array $data): array
+    {
+        $errors = [];
+        
+        // Check if it's an event-based webhook
+        if (isset($data['event'])) {
+            $event = $data['event'];
+            $requiredEventFields = ['id', 'status', 'severity'];
+            
+            foreach ($requiredEventFields as $field) {
+                if (!isset($event[$field]) || empty(trim((string) $event[$field]))) {
+                    $errors[] = "Required event field '{$field}' is missing or empty";
+                }
+            }
+            
+            // Validate event status
+            if (isset($event['status']) && !in_array($event['status'], ['ALARM', 'OK', 'INSUFFICIENT_DATA'])) {
+                $errors[] = 'Invalid event status';
+            }
+            
+            // Validate severity
+            if (isset($event['severity']) && !in_array($event['severity'], ['CRITICAL', 'WARN', 'INFO'])) {
+                $errors[] = 'Invalid event severity';
+            }
+        }
+        // Check if it's a metric-based webhook
+        else if (isset($data['alertName']) || isset($data['metricName'])) {
+            // Use existing threshold alarm validation
+            return $this->validateThresholdAlarm($data);
+        }
+        // Check for other Alibaba Cloud formats
+        else if (isset($data['product']) && isset($data['level'])) {
+            // Use existing event alarm validation
+            return $this->validateEventAlarm($data);
+        }
+        else {
+            $errors[] = 'Unknown webhook format - missing required fields';
+        }
+        
+        return ['valid' => empty($errors), 'errors' => $errors];
+    }
+    
+    /**
      * Sanitize input data
      * 
      * @param array $data Input data to sanitize

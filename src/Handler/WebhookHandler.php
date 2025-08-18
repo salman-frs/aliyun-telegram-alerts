@@ -235,27 +235,22 @@ class WebhookHandler
         
         $data = $this->validator->sanitizeData($data);
         
-        // Validate data
-        $validation = $this->validator->validateEventAlarm($data);
+        // Try Alibaba Cloud webhook validation first
+        $validation = $this->validator->validateAlibabaCloudWebhook($data);
         if (!$validation['valid']) {
-            return [
-                'success' => false,
-                'errors' => $validation['errors']
-            ];
+            // Fallback to legacy event alarm validation
+            $validation = $this->validator->validateEventAlarm($data);
+            if (!$validation['valid']) {
+                return [
+                    'success' => false,
+                    'errors' => $validation['errors']
+                ];
+            }
         }
         
-        // Create message
+        // Create message based on webhook format
         $prefix = $this->config->getPrefix();
-        $instanceId = $data['content']['instanceIds'][0] ?? $data['instanceName'];
-        $description = $data['content']['description'] ?? 'No description available';
-        
-        $message = sprintf(
-            "%s*%s* - `%s`\n%s",
-            $prefix,
-            $instanceId,
-            $data['name'],
-            $description
-        );
+        $message = $this->createAlarmMessage($data, $prefix);
         
         // Send message
         $success = $this->telegram->sendMessage(
@@ -267,6 +262,75 @@ class WebhookHandler
             'success' => $success,
             'errors' => $success ? [] : ['Failed to send Telegram message']
         ];
+    }
+    
+    /**
+     * Create alarm message based on webhook format
+     * 
+     * @param array $data Webhook data
+     * @param string $prefix Message prefix
+     * @return string Formatted message
+     */
+    private function createAlarmMessage(array $data, string $prefix): string
+    {
+        // Handle Alibaba Cloud event-based webhook
+        if (isset($data['event'])) {
+            $event = $data['event'];
+            $status = $event['status'] ?? 'UNKNOWN';
+            $severity = $event['severity'] ?? 'INFO';
+            $description = $event['description'] ?? 'No description available';
+            $host = $event['host'] ?? 'Unknown host';
+            $timestamp = $event['timestamp'] ?? date('Y-m-d H:i:s');
+            
+            return sprintf(
+                "%s🚨 *%s Alert*\n" .
+                "📊 **Status**: %s\n" .
+                "⚠️ **Severity**: %s\n" .
+                "🖥️ **Host**: `%s`\n" .
+                "📝 **Description**: %s\n" .
+                "🕐 **Time**: %s",
+                $prefix,
+                $severity,
+                $status,
+                $severity,
+                $host,
+                $description,
+                $timestamp
+            );
+        }
+        // Handle legacy event alarm format
+        else if (isset($data['name']) && isset($data['instanceName'])) {
+            $instanceId = $data['content']['instanceIds'][0] ?? $data['instanceName'];
+            $description = $data['content']['description'] ?? 'No description available';
+            
+            return sprintf(
+                "%s*%s* - `%s`\n%s",
+                $prefix,
+                $instanceId,
+                $data['name'],
+                $description
+            );
+        }
+        // Handle threshold alarm format
+        else if (isset($data['alertName']) && isset($data['alertState'])) {
+            return sprintf(
+                "%s*%s %s* for `%s` is `%s`. Value: %s",
+                $prefix,
+                $data['alertName'],
+                $data['metricName'] ?? 'Metric',
+                $data['instanceName'] ?? 'Unknown Instance',
+                $data['alertState'],
+                $data['curValue'] ?? 'N/A'
+            );
+        }
+        // Fallback for unknown formats
+        else {
+            return sprintf(
+                "%s📢 Alert received\n%s",
+                $prefix,
+                json_encode($data, JSON_PRETTY_PRINT)
+            );
+        }
     }
     
     /**

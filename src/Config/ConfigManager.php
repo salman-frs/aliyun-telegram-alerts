@@ -116,6 +116,16 @@ class ConfigManager
     }
     
     /**
+     * Get log directory
+     * 
+     * @return string Log directory path
+     */
+    public function getLogDir(): string
+    {
+        return $this->get('LOG_DIR', '/tmp/cloudmonitor_logs');
+    }
+    
+    /**
      * Check if application is in debug mode
      * 
      * @return bool Debug mode status
@@ -168,6 +178,7 @@ class ConfigManager
             'SIGNATURE' => '',
             'PREFIX' => '[CM] ',
             'LOG_LEVEL' => 'info',
+            'LOG_DIR' => '/tmp/cloudmonitor_logs',
             'DEBUG' => 'false',
             'RATE_LIMIT_MAX_REQUESTS' => '60',
             'RATE_LIMIT_TIME_WINDOW' => '3600',

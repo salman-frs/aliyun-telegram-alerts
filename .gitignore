@@ -3,3 +3,4 @@ vendor/
 *.txt
 *.log
 composer.lock
+test_webhook.sh
