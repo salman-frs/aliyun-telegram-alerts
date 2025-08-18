@@ -136,15 +136,15 @@ class InputValidator
                 $errors[] = 'Invalid event severity';
             }
         }
-        // Check if it's a metric-based webhook
-        else if (isset($data['alertName']) || isset($data['metricName'])) {
-            // Use existing threshold alarm validation
-            return $this->validateThresholdAlarm($data);
-        }
-        // Check for other Alibaba Cloud formats
+        // Check for Alibaba Cloud event formats (including timing indicator)
         else if (isset($data['product']) && isset($data['level'])) {
             // Use existing event alarm validation
             return $this->validateEventAlarm($data);
+        }
+        // Check if it's a metric-based webhook (threshold alarm)
+        else if (isset($data['alertName']) || isset($data['metricName'])) {
+            // Use existing threshold alarm validation
+            return $this->validateThresholdAlarm($data);
         }
         else {
             $errors[] = 'Unknown webhook format - missing required fields';
