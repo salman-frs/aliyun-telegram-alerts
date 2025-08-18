@@ -1,0 +1,50 @@
+{
+    "name": "salman-frs/aliyun-telegram-alerts",
+    "description": "Secure webhook handler for Alibaba Cloud Monitor notifications to Telegram with enhanced security features, rate limiting, and comprehensive logging.",
+    "homepage": "https://github.com/salman-frs/aliyun-telegram-alerts",
+    "license": "MIT",
+    "keywords": ["Alibaba", "Alibaba Cloud", "Cloud Monitor", "Telegram", "Alert", "Notification", "Aliyun", "Ali Cloud", "Webhook", "Security"],
+    "authors": [
+        {
+            "name": "salman-frs",
+            "email": "sallman.alffarisi@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "guzzlehttp/guzzle": "^7.3",
+        "vlucas/phpdotenv": "^5.3",
+        "psr/log": "^1.1|^2.0|^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^10.0",
+        "phpstan/phpstan": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CloudMonitor\\": "src/"
+        },
+        "files": [
+            "TelegramMessage.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CloudMonitor\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse src --level=5",
+        "check": [
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
