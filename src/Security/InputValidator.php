@@ -251,8 +251,8 @@ class InputValidator
      */
     private function isValidAlertName(string $alertName): bool
     {
-        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, and colons
-        return preg_match('/^[a-zA-Z0-9\s\-_\.:]{1,100}$/', $alertName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, colons, and parentheses
+        return preg_match('/^[a-zA-Z0-9\s\-_\.:()]{1,100}$/', $alertName) === 1;
     }
     
     /**
@@ -263,7 +263,7 @@ class InputValidator
      */
     private function isValidAlertState(string $alertState): bool
     {
-        $validStates = ['OK', 'ALARM', 'INSUFFICIENT_DATA', 'CRITICAL', 'WARNING', 'INFO'];
+        $validStates = ['OK', 'ALARM', 'ALERT', 'INSUFFICIENT_DATA', 'CRITICAL', 'WARNING', 'INFO'];
         return in_array(strtoupper($alertState), $validStates, true);
     }
     
