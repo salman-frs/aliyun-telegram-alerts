@@ -251,7 +251,8 @@ class InputValidator
      */
     private function isValidAlertName(string $alertName): bool
     {
-        return preg_match('/^[a-zA-Z0-9\s\-_\.]{1,100}$/', $alertName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, and colons
+        return preg_match('/^[a-zA-Z0-9\s\-_\.:]{1,100}$/', $alertName) === 1;
     }
     
     /**

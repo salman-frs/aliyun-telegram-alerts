@@ -235,6 +235,9 @@ class WebhookHandler
         
         $data = $this->validator->sanitizeData($data);
         
+        // Log the received payload for debugging
+        $this->logger->info('Received webhook payload', ['payload' => $data]);
+        
         // Try Alibaba Cloud webhook validation first
         $validation = $this->validator->validateAlibabaCloudWebhook($data);
         if (!$validation['valid']) {
