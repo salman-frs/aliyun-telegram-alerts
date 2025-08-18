@@ -183,6 +183,9 @@ class WebhookHandler
         parse_str($body, $data);
         $data = $this->validator->sanitizeData($data);
         
+        // Log the received payload for debugging
+        $this->logger->info('Received threshold alarm payload', ['payload' => $data]);
+        
         // Validate data
         $validation = $this->validator->validateThresholdAlarm($data);
         if (!$validation['valid']) {
