@@ -31,8 +31,8 @@ A PHP webhook handler that processes HTTP POST requests from Alibaba Cloud Monit
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd alibabacloud-cloudmonitor-notification
+git clone https://github.com/salman-frs/aliyun-telegram-alerts.git
+cd aliyun-telegram-alerts
 ```
 
 ### 2. Install Dependencies
@@ -162,12 +162,6 @@ The main entry point that handles all webhook requests with comprehensive securi
 **Method**: POST
 **Content-Type**: `application/json` or `application/x-www-form-urlencoded`
 
-### Legacy Endpoints
-
-For backward compatibility, the following endpoints are still available:
-
-- `/threshold_alarm.php` - Handles threshold-based alarms
-- `/event_alarm.php` - Handles event-based alarms
 
 ## Security Implementation
 
@@ -284,30 +278,3 @@ Enable debug logging by setting `LOG_LEVEL=debug` in your `.env` file.
 4. Add tests for new functionality
 5. Run tests and code analysis
 6. Submit a pull request
-
-## Support
-
-For support and questions:
-
-1. Check the troubleshooting section
-2. Review the logs for error messages
-3. Create an issue in the repository
-4. Provide detailed information about your setup and the issue
-
-## Changelog
-
-### Version 2.0.0
-
-- **Input Validation**: Added Unicode-aware regex validation for all webhook fields
-- **Rate Limiting**: Implemented file-based IP tracking with configurable limits
-- **Logging**: Integrated Monolog with rotating file handlers and structured output
-- **Error Handling**: Added HTTP status code responses and exception catching
-- **Architecture**: Implemented PSR-4 autoloading with `src/` namespace structure
-- **Security**: Added signature verification and HTTP method restrictions
-- **Configuration**: Environment-based configuration with `.env` file support
-
-### Version 1.0.0
-
-- **Core Functionality**: Basic webhook endpoint for Alibaba Cloud Monitor
-- **Telegram Integration**: Bot API integration for message sending
-- **Webhook Processing**: Support for threshold and event alarm formats
