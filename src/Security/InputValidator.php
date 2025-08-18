@@ -273,8 +273,8 @@ class InputValidator
      */
     private function isValidAlertName(string $alertName): bool
     {
-        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, colons, and parentheses
-        return preg_match('/^[a-zA-Z0-9\s\-_\.:()]{1,100}$/', $alertName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, colons, parentheses, and Unicode characters
+        return preg_match('/^[\p{L}\p{N}\s\-_\.:()]{1,100}$/u', $alertName) === 1;
     }
     
     /**
@@ -308,8 +308,8 @@ class InputValidator
      */
     private function isValidInstanceName(string $instanceName): bool
     {
-        // Allow alphanumeric characters, hyphens, underscores, dots, slashes, and IP addresses
-        return preg_match('/^[a-zA-Z0-9\-_\.\/]{1,100}$/', $instanceName) === 1;
+        // Allow alphanumeric characters, hyphens, underscores, dots, slashes, IP addresses, and Unicode characters
+        return preg_match('/^[\p{L}\p{N}\-_\.\/]{1,100}$/u', $instanceName) === 1;
     }
     
     /**
@@ -320,8 +320,8 @@ class InputValidator
      */
     private function isValidMetricName(string $metricName): bool
     {
-        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, slashes, percent, and parentheses
-        return preg_match('/^[a-zA-Z0-9\s\-_\.\/\%\(\)]{1,100}$/', $metricName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, slashes, percent, parentheses, and Unicode characters (including Chinese)
+        return preg_match('/^[\p{L}\p{N}\s\-_\.\/\%\(\)]{1,100}$/u', $metricName) === 1;
     }
     
     /**
@@ -332,7 +332,8 @@ class InputValidator
      */
     private function isValidProductName(string $productName): bool
     {
-        return preg_match('/^[a-zA-Z0-9\s\-_]{1,50}$/', $productName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, and Unicode characters
+        return preg_match('/^[\p{L}\p{N}\s\-_]{1,50}$/u', $productName) === 1;
     }
     
     /**
@@ -355,8 +356,8 @@ class InputValidator
      */
     private function isValidEventName(string $eventName): bool
     {
-        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, and colons
-        return preg_match('/^[a-zA-Z0-9\s\-_\.:]{1,100}$/', $eventName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, colons, and Unicode characters
+        return preg_match('/^[\p{L}\p{N}\s\-_\.:]{1,100}$/u', $eventName) === 1;
     }
     
     /**
