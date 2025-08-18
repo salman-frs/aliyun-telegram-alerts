@@ -136,10 +136,21 @@ class InputValidator
                 $errors[] = 'Invalid event severity';
             }
         }
-        // Check for Alibaba Cloud event formats (including timing indicator)
+        // Check for Alibaba Cloud event formats (including timing indicator and alert webhooks)
         else if (isset($data['product']) && isset($data['level'])) {
             // Use existing event alarm validation
             return $this->validateEventAlarm($data);
+        }
+        // Check for CloudMonitor alert webhook format
+        else if (isset($data['name']) && isset($data['status']) && isset($data['level'])) {
+            // This is a CloudMonitor alert webhook format - validate as event alarm
+            $eventData = [
+                'product' => $data['product'] ?? 'CloudMonitor',
+                'level' => $data['level'],
+                'instanceName' => $data['instanceName'] ?? 'Unknown',
+                'name' => $data['name']
+            ];
+            return $this->validateEventAlarm($eventData);
         }
         // Check if it's a metric-based webhook (threshold alarm)
         else if (isset($data['alertName']) || isset($data['metricName'])) {
@@ -147,7 +158,18 @@ class InputValidator
             return $this->validateThresholdAlarm($data);
         }
         else {
-            $errors[] = 'Unknown webhook format - missing required fields';
+            // For unknown formats, perform basic validation
+            if (empty($data)) {
+                $errors[] = 'Empty webhook payload';
+            } else {
+                // Accept webhook if it has at least some identifiable fields
+                $hasValidFields = isset($data['id']) || isset($data['name']) || isset($data['alertName']) || 
+                                isset($data['eventType']) || isset($data['status']) || isset($data['level']);
+                
+                if (!$hasValidFields) {
+                    $errors[] = 'Unknown webhook format - missing required fields';
+                }
+            }
         }
         
         return ['valid' => empty($errors), 'errors' => $errors];
@@ -286,7 +308,8 @@ class InputValidator
      */
     private function isValidInstanceName(string $instanceName): bool
     {
-        return preg_match('/^[a-zA-Z0-9\-_\.]{1,100}$/', $instanceName) === 1;
+        // Allow alphanumeric characters, hyphens, underscores, dots, slashes, and IP addresses
+        return preg_match('/^[a-zA-Z0-9\-_\.\/]{1,100}$/', $instanceName) === 1;
     }
     
     /**
@@ -297,7 +320,8 @@ class InputValidator
      */
     private function isValidMetricName(string $metricName): bool
     {
-        return preg_match('/^[a-zA-Z0-9\s\-_\.\/%]{1,100}$/', $metricName) === 1;
+        // Allow alphanumeric characters, spaces, hyphens, underscores, dots, slashes, percent, and parentheses
+        return preg_match('/^[a-zA-Z0-9\s\-_\.\/\%\(\)]{1,100}$/', $metricName) === 1;
     }
     
     /**
