@@ -117,20 +117,20 @@ php -S localhost:8000
 
 ### Testing Webhooks
 
-You can test the webhook endpoints using curl:
+You can test the webhook endpoint using curl. The application uses a single endpoint and determines the alarm type based on Content-Type headers:
 
-#### Threshold Alarm Test
+#### Threshold Alarm Test (Form-encoded)
 
 ```bash
-curl -X POST http://localhost:8000/threshold_alarm.php \
+curl -X POST http://localhost:8000/ \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "alertName=CPU%20Usage&alertState=ALARM&curValue=85.5&instanceName=web-server-01&metricName=CPUUtilization"
 ```
 
-#### Event Alarm Test
+#### Event Alarm Test (JSON)
 
 ```bash
-curl -X POST http://localhost:8000/event_alarm.php \
+curl -X POST http://localhost:8000/ \
   -H "Content-Type: application/json" \
   -d '{
     "product": "ECS",
@@ -143,6 +143,22 @@ curl -X POST http://localhost:8000/event_alarm.php \
     }
   }'
 ```
+
+#### With Signature (if configured)
+
+```bash
+curl -X POST "http://localhost:8000/?signature=your_signature_here" \
+  -H "Content-Type: application/json" \
+  -d '{"product": "ECS", "level": "INFO", "name": "Test_Event"}'
+```
+
+#### Health Check Test
+
+```bash
+curl -X GET http://localhost:8000/health
+```
+
+Expected response: `200 OK` with "healthy" message.
 
 ### Function Compute Deployment
 
