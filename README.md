@@ -11,13 +11,14 @@ A PHP webhook handler that processes HTTP POST requests from Alibaba Cloud Monit
 
 ## Features
 
-- **Input Validation**: Comprehensive validation using `InputValidator` class with regex patterns for Unicode support, including `validateThresholdAlarm()`, `validateEventAlarm()`, and `validateAlibabaCloudWebhook()` methods
+- **Input Validation**: Comprehensive validation using `InputValidator` class with regex patterns for Unicode support, including `validateThresholdAlarm()`, `validateEventAlarm()`, `validateAlibabaCloudWebhook()`, `validateHttpMethod()`, `validateContentType()`, and `sanitizeData()` methods
 - **PSR-4 Autoloading**: Composer-based class autoloading with `CloudMonitor\` namespace mapping to `src/` directory
 - **Custom File Logger**: Custom `FileLogger` class implementing PSR-3 LoggerInterface with file rotation based on size and count limits
-- **File-Based Rate Limiting**: `RateLimiter` class using JSON file storage in `/tmp/rate_limiter/` with configurable request limits and time windows
-- **Environment Configuration**: `ConfigManager` class using vlucas/phpdotenv for `.env` file parsing with validation for required fields
-- **Telegram Integration**: `TelegramMessage` class using Guzzle HTTP client with 30-second timeout and SSL verification
+- **File-Based Rate Limiting**: `RateLimiter` class using JSON file storage in `/tmp/rate_limiter/` with configurable request limits and time windows, including `getRemainingRequests()`, `getTimeUntilReset()`, `clearRateLimit()`, and automatic cleanup methods
+- **Environment Configuration**: `ConfigManager` class using vlucas/phpdotenv for `.env` file parsing with validation for required fields, including `isDebugMode()`, `getRateLimitConfig()`, and specific getter methods for all configuration values
+- **Telegram Integration**: `TelegramMessage` class using Guzzle HTTP client with 30-second timeout, SSL verification, support for Markdown/HTML parsing, silent notifications, and message length validation (4096 chars max)
 - **Dual Entry Points**: Main `index.php` supports both direct HTTP requests and Alibaba Cloud Function Compute with `initializer()` function
+- **Backward Compatibility**: Legacy functions `validate_request()` and `send_message()` for compatibility with older implementations
 
 ## Requirements
 
@@ -72,6 +73,9 @@ LOG_MAX_SIZE=10485760                # Maximum log file size in bytes (10MB)
 # Rate Limiting Configuration
 RATE_LIMIT_MAX_REQUESTS=100          # Maximum requests per time window
 RATE_LIMIT_TIME_WINDOW=3600          # Time window in seconds (1 hour)
+
+# Debug Configuration
+DEBUG=false                          # Enable debug mode for additional logging
 ```
 
 ### 4. Set Permissions
@@ -316,13 +320,14 @@ curl http://localhost:8080/health
 ### Running Tests
 
 ```bash
-composer test
+composer test    # Run PHPUnit tests
 ```
 
 ### Code Analysis
 
 ```bash
-composer analyze
+composer analyse # Run PHPStan static analysis (level 5)
+composer check   # Run both analysis and tests
 ```
 
 ### Development Dependencies
@@ -330,7 +335,7 @@ composer analyze
 Install development dependencies:
 
 ```bash
-composer install
+composer install  # Includes PHPUnit ^9.0|^10.0 and PHPStan ^1.0
 ```
 
 ## Troubleshooting
@@ -364,7 +369,7 @@ composer install
 
 ### Debug Mode
 
-Enable debug logging by setting `LOG_LEVEL=debug` in your `.env` file.
+Enable debug logging by setting `LOG_LEVEL=debug` and optionally `DEBUG=true` in your `.env` file for additional debugging features.
 
 ## Changelog
 
